@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitApp">
+<title>FitApp</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg0:#080C18;--bg1:#0F1628;--bg2:#162040;--bg3:#1C2850;
+  --acc:#39FF14;--acc2:#FFE600;--acc3:#00EEFF;--pink:#FF2D78;--red:#FF3B5C;
+  --t1:#F0F4FF;--t2:#8A9CC4;--t3:#445580;
+  --bdr:rgba(57,255,20,0.15);--bdr2:rgba(255,255,255,0.1);
+}
+html,body{background:var(--bg0);}
+body{color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;max-width:430px;margin:0 auto;}
+.tabs{display:flex;background:var(--bg1);padding:6px;gap:4px;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--bdr);}
+.tab{flex:1;padding:11px 2px;border:none;border-radius:10px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;text-align:center;background:transparent;color:var(--t3);-webkit-tap-highlight-color:transparent;}
+.tab.on{background:var(--acc);color:#080C18;font-weight:700;}
+.page{display:none;padding:12px;padding-bottom:32px;}
+.card{background:var(--bg1);border:1px solid var(--bdr2);border-radius:14px;padding:14px;margin-bottom:10px;}
+.card.ac{border-color:var(--bdr);}
+.ct{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mbox{background:var(--bg2);border:1px solid var(--bdr2);border-radius:10px;padding:12px;text-align:center;}
+.mv{font-size:22px;font-weight:700;}.ml{font-size:10px;color:var(--t3);margin-top:3px;}
+.bwrap{height:4px;background:var(--bg3);border-radius:99px;margin:4px 0;}
+.bfill{height:4px;border-radius:99px;transition:width .3s;}
+input,textarea{width:100%;padding:11px 12px;font-size:14px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:var(--bg2);color:var(--t1);font-family:inherit;margin-bottom:8px;outline:none;-webkit-appearance:none;}
+input:focus,textarea:focus{border-color:var(--acc);}
+textarea{resize:none;line-height:1.6;}
+.btn{width:100%;padding:13px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:var(--bg2);color:var(--t1);font-size:14px;cursor:pointer;font-family:inherit;margin-bottom:8px;font-weight:500;-webkit-tap-highlight-color:transparent;}
+.btn:active{opacity:.8;}
+.bp{background:var(--acc);border-color:var(--acc);color:#080C18;font-weight:700;}
+.bt{background:var(--acc3);border-color:var(--acc3);color:#080C18;font-weight:700;}
+.trow{display:flex;gap:6px;margin-bottom:8px;}
+.tog{flex:1;padding:11px 4px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:var(--bg2);color:var(--t3);font-size:13px;cursor:pointer;font-family:inherit;text-align:center;-webkit-tap-highlight-color:transparent;}
+.sl{font-size:11px;color:var(--t3);margin:6px 0 3px;}
+.li{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.li:last-child{border-bottom:none;}
+.del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:16px;padding:0 6px;}
+.kt{font-size:12px;color:var(--acc);font-weight:700;white-space:nowrap;}
+.prev{background:var(--bg3);border:1px solid var(--acc);border-radius:10px;padding:9px 12px;margin-bottom:8px;font-size:13px;color:var(--acc);display:none;}
+.rpt{background:var(--bg2);border:1px solid var(--bdr2);border-radius:10px;padding:12px;font-size:12px;color:var(--t2);font-family:monospace;line-height:1.7;white-space:pre-wrap;word-break:break-all;margin-bottom:8px;min-height:100px;}
+.bmrbox{background:var(--bg2);border:1px solid var(--acc);border-radius:10px;padding:14px;margin-top:6px;}
+.empty{color:var(--t3);text-align:center;padding:1.2rem;font-size:13px;}
+.exhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.chips{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.chip{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;font-size:12px;padding:7px 10px;color:var(--t1);}
+.chip-l{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.xbtn{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:0 2px;flex-shrink:0;}
+.exrow{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.nin{width:54px!important;padding:7px 4px!important;text-align:center;margin-bottom:0!important;font-size:14px;}
+.ul{font-size:11px;color:var(--t3);white-space:nowrap;}
+.addb{background:var(--bg0);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--t2);font-size:12px;padding:8px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.irow{display:flex;gap:4px;margin-top:6px;}
+.ibtn{flex:1;padding:7px 2px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;background:var(--bg3);cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.iface{font-size:18px;display:block;}
+.ilab{font-size:9px;color:var(--t3);display:block;margin-top:1px;}
+
+/* カレンダー */
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cc{text-align:center;font-size:12px;padding:6px 2px;border-radius:8px;cursor:pointer;border:2px solid transparent;}
+.cc.today{border-color:var(--acc);color:var(--acc);font-weight:700;}
+.cc.sel{background:var(--acc);color:#080C18;font-weight:700;border-color:var(--acc);}
+.cc.has{border-color:var(--acc2);color:var(--t1);font-weight:700;}
+.cc.has.sel{background:var(--acc);border-color:var(--acc);color:#080C18;}
+.cc.empty-cell{cursor:default;}
+
+.note{font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.6;}
+.wtq{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
+.wtq-lbl{font-size:12px;color:var(--acc);font-weight:700;white-space:nowrap;}
+.wtq input{margin-bottom:0;flex:1;padding:8px 10px;}
+.wtq .btn{width:auto;margin:0;padding:8px 14px;font-size:13px;}
+
+/* ポップアップ共通 */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:100;display:none;}
+.popup{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg1);border-radius:20px 20px 0 0;z-index:101;display:none;max-height:82vh;flex-direction:column;}
+.popup-hd{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 0;flex-shrink:0;}
+.popup-title{font-size:15px;font-weight:700;color:var(--acc);}
+.popup-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--t3);padding:4px;}
+.ptabs{display:flex;gap:4px;padding:10px 12px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+.ptabs::-webkit-scrollbar{display:none;}
+.ptab{padding:7px 12px;border:1px solid var(--bdr2);border-radius:20px;background:var(--bg2);color:var(--t3);font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.ptab.on{background:var(--acc);border-color:var(--acc);color:#080C18;font-weight:700;}
+.popup-list{overflow-y:auto;padding:0 12px 20px;flex:1;}
+.pitem{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;background:var(--bg2);margin-bottom:6px;cursor:pointer;border:1px solid var(--bdr2);-webkit-tap-highlight-color:transparent;}
+.pitem.selected{border-color:var(--acc);background:rgba(57,255,20,0.08);}
+.pitem-name{font-size:13px;color:var(--t1);}
+.pitem-check{font-size:16px;color:var(--acc);}
+
+/* 今日のメニューカード */
+.menu-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:8px;}
+.menu-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.menu-card-name{font-size:13px;font-weight:700;color:var(--t1);}
+.menu-del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:0 4px;}
+.rpbtn{background:var(--bg3);border:1px solid var(--acc2);border-radius:8px;color:var(--acc2);font-size:11px;padding:5px 9px;cursor:pointer;white-space:nowrap;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+
+/* お気に入りセット */
+.fav-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--bdr2);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.fav-info{flex:1;min-width:0;}
+.fav-name{font-size:13px;font-weight:700;color:var(--acc2);}
+.fav-tags{font-size:11px;color:var(--t3);margin-top:3px;}
+.fav-btns{display:flex;gap:6px;flex-shrink:0;margin-left:8px;}
+.fav-load{background:var(--acc2);border:none;border-radius:8px;color:#080C18;font-size:12px;padding:6px 12px;cursor:pointer;font-weight:700;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.fav-del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:15px;padding:0 4px;}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab on"  onclick="sw('home',this)">ホーム</button>
+  <button class="tab"     onclick="sw('cal',this)">記録</button>
+  <button class="tab"     onclick="sw('body',this)">体重</button>
+  <button class="tab"     onclick="sw('workout',this)">筋トレ</button>
+  <button class="tab"     onclick="sw('cardio',this)">有酸素</button>
+  <button class="tab"     onclick="sw('report',this)">報告</button>
+</div>
+
+<!-- ホーム -->
+<div class="page" id="pg-home" style="display:block">
+  <div class="wtq">
+    <span class="wtq-lbl">今日の体重</span>
+    <input type="number" id="wt-quick" placeholder="kg" step="0.1">
+    <button class="btn bp" onclick="saveWtQ()">記録</button>
+  </div>
+  <div class="card ac">
+    <div class="ct">今日のサマリー</div>
+    <div class="g2" style="margin-bottom:10px">
+      <div class="mbox"><div class="mv" id="h-steps" style="color:var(--acc2)">0</div><div class="ml">総歩数</div></div>
+      <div class="mbox"><div class="mv" id="h-burn" style="color:var(--acc)">0</div><div class="ml">消費 kcal</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);display:flex;justify-content:space-between"><span>消費</span><span id="h-bp">0%</span></div>
+    <div class="bwrap"><div class="bfill" id="h-bb" style="background:var(--acc);width:0%"></div></div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">目標: <span id="h-gk" style="color:var(--t2)">2000</span> kcal</div>
+  </div>
+  <div class="card">
+    <div class="ct">歩数（今日）</div>
+    <div class="note">※スマートウォッチの総歩数をそのまま入力。ランニング分は自動で差し引きます。</div>
+    <div class="g2" style="margin-bottom:0">
+      <input type="number" id="si" placeholder="総歩数" style="margin:0">
+      <button class="btn bp" style="margin:0" onclick="saveSteps()">保存</button>
+    </div>
+  </div>
+  <div class="card"><div class="ct">消費内訳</div><div style="position:relative;height:150px"><canvas id="bc"></canvas></div></div>
+</div>
+
+<!-- カレンダー -->
+<div class="page" id="pg-cal">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <button style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--t3);padding:4px 12px" onclick="calMv(-1)">‹</button>
+      <span id="cl" style="font-size:16px;font-weight:700;color:var(--acc)"></span>
+      <button style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--t3);padding:4px 12px" onclick="calMv(1)">›</button>
+    </div>
+    <!-- 凡例 -->
+    <div style="display:flex;gap:12px;margin-bottom:8px;padding:0 4px">
+      <div style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:4px;border:2px solid var(--acc2);display:inline-block"></span><span style="font-size:11px;color:var(--t3)">記録あり</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:4px;border:2px solid var(--acc);display:inline-block"></span><span style="font-size:11px;color:var(--t3)">今日</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:4px;background:var(--acc);display:inline-block"></span><span style="font-size:11px;color:var(--t3)">選択中</span></div>
+    </div>
+    <div class="cg" id="chd" style="margin-bottom:6px"></div>
+    <div class="cg" id="cbd"></div>
+    <div id="cdet" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr2)"></div>
+  </div>
+</div>
+
+<!-- 体重 -->
+<div class="page" id="pg-body">
+  <div class="card ac">
+    <div class="ct">プロフィール（一度設定すればOK）</div>
+    <div class="sl">性別</div>
+    <div class="trow">
+      <button class="tog" id="g-male" onclick="pickG('male')">男性</button>
+      <button class="tog" id="g-female" onclick="pickG('female')">女性</button>
+    </div>
+    <div class="g2">
+      <div><div class="sl">年齢</div><input type="number" id="p-age" placeholder="40" min="10" max="100"></div>
+      <div><div class="sl">身長 (cm)</div><input type="number" id="p-h" placeholder="170" min="100" max="250"></div>
+    </div>
+    <div class="g2">
+      <div><div class="sl">目標体重 (kg)</div><input type="number" id="p-gw" placeholder="65" step="0.1"></div>
+      <div><div class="sl">目標カロリー</div><input type="number" id="p-gk" placeholder="2000"></div>
+    </div>
+    <button class="btn bp" onclick="saveProf()">保存</button>
+    <div class="bmrbox" id="bmrbox" style="display:none">
+      <div id="bmr-note" style="font-size:11px;color:var(--acc);margin-bottom:6px;font-weight:600"></div>
+      <span id="bmr-val" style="font-size:30px;font-weight:700;color:var(--acc)"></span>
+      <span style="font-size:13px;color:var(--t2)"> kcal/日</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">体重の記録履歴</div>
+    <div style="position:relative;height:150px;margin-bottom:8px"><canvas id="wc"></canvas></div>
+    <div id="wl"><div class="empty">まだ記録がありません</div></div>
+  </div>
+</div>
+
+<!-- 筋トレ -->
+<div class="page" id="pg-workout">
+  <div id="wkw" style="display:none;background:#1a1000;border:1px solid var(--acc2);border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px;color:var(--acc2)">体重をホームで入力するとカロリー計算が正確になります。</div>
+
+  <!-- お気に入りセット -->
+  <div class="card" id="fav-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="ct" style="margin-bottom:0">⭐ お気に入りセット</div>
+      <button class="btn bp" style="width:auto;padding:7px 14px;margin:0;font-size:12px" onclick="saveFav()">今日のメニューを保存</button>
+    </div>
+    <div id="fav-list"><div class="empty" style="padding:.6rem">保存したセットがありません</div></div>
+  </div>
+
+  <!-- 今日のメニュー -->
+  <div class="card ac">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="ct" style="margin-bottom:0">今日のメニュー</div>
+      <button class="btn bp" style="width:auto;padding:7px 14px;margin:0;font-size:12px" onclick="openPopup()">＋ 種目を追加</button>
+    </div>
+    <div id="today-menu"><div class="empty">「＋ 種目を追加」で種目を選んでください</div></div>
+    <div id="wk-save-wrap" style="display:none;margin-top:4px">
+      <button class="btn" style="background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700;" onclick="saveWk()">すべて記録する</button>
+      <div id="wk-ok" style="display:none;text-align:center;font-size:12px;color:var(--acc);margin-top:4px;font-weight:700">✓ 記録しました！</div>
+    </div>
+  </div>
+
+  <!-- 感想欄 -->
+  <div class="card">
+    <div class="ct">今日の感想</div>
+    <textarea id="wk-memo" placeholder="調子・気づき・メモなど自由に" rows="3"></textarea>
+    <button class="btn bp" onclick="saveMemo()">保存</button>
+    <div id="memo-ok" style="display:none;text-align:center;font-size:12px;color:var(--acc);margin-top:-4px;margin-bottom:8px;font-weight:700">✓ 保存しました！</div>
+  </div>
+
+  <!-- 今日の記録 -->
+  <div class="card">
+    <div class="ct">今日の記録</div>
+    <div id="exl"><div class="empty">まだ記録がありません</div></div>
+    <div id="ext" style="display:none;text-align:right;font-size:13px;font-weight:700;color:var(--acc);margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)"></div>
+  </div>
+</div>
+
+<!-- 有酸素 -->
+<div class="page" id="pg-cardio">
+  <div class="card">
+    <div class="ct">ランニングを記録</div>
+    <div class="note">※ランニングの歩数は万歩計から自動で差し引きます。</div>
+    <div class="g2">
+      <input type="number" id="rk" placeholder="距離 (km)" step="0.1">
+      <input type="number" id="rm" placeholder="時間 (分)" min="1">
+    </div>
+    <div class="prev" id="rpv"></div>
+    <button class="btn bp" onclick="saveRun()">記録する</button>
+  </div>
+  <div class="card"><div class="ct">今日の有酸素記録</div><div id="runl"><div class="empty">まだ記録がありません</div></div></div>
+</div>
+
+<!-- 報告 -->
+<div class="page" id="pg-report">
+  <div class="card ac">
+    <div class="ct">出力する項目を選択</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px" id="chk-list"></div>
+  </div>
+  <div class="card">
+    <div class="ct">レポート</div>
+    <div class="rpt" id="rpt">項目を選択してください</div>
+    <button class="btn bt" onclick="copyRpt()">クリップボードにコピー</button>
+    <div id="cok" style="display:none;text-align:center;font-size:12px;color:var(--acc3);margin-top:4px;font-weight:700">✓ コピーしました！</div>
+  </div>
+  <div class="card">
+    <div class="ct">別の日を見る</div>
+    <input type="date" id="rd" style="margin-bottom:8px">
+    <button class="btn" onclick="loadRd()">表示</button>
+  </div>
+</div>
+
+<!-- 種目選択ポップアップ -->
+<div class="overlay" id="overlay" onclick="closePopup()"></div>
+<div class="popup" id="popup">
+  <div class="popup-hd">
+    <span class="popup-title">種目を選択</span>
+    <button class="popup-close" onclick="closePopup()">✕</button>
+  </div>
+  <div class="ptabs" id="ptabs"></div>
+  <div class="popup-list" id="popup-list"></div>
+</div>
+
+<!-- お気に入り名前入力ポップアップ -->
+<div class="overlay" id="fav-overlay" onclick="closeFavPopup()"></div>
+<div class="popup" id="fav-popup" style="max-height:50vh">
+  <div class="popup-hd">
+    <span class="popup-title" id="fav-popup-title">セット名を入力</span>
+    <button class="popup-close" onclick="closeFavPopup()">✕</button>
+  </div>
+  <div style="padding:16px;overflow-y:auto">
+    <div class="sl">セット名</div>
+    <input type="text" id="fav-name-in" placeholder="例）脚の日・Aメニュー" style="margin-bottom:12px">
+    <button class="btn bp" id="fav-save-btn" onclick="confirmSaveFav()">保存する</button>
+  </div>
+</div>
+
+<!-- お気に入り編集ポップアップ -->
+<div class="overlay" id="fav-edit-overlay" onclick="closeFavEdit()"></div>
+<div class="popup" id="fav-edit-popup" style="max-height:85vh">
+  <div class="popup-hd">
+    <span class="popup-title" style="color:var(--acc2)">✏️ セットを編集</span>
+    <button class="popup-close" onclick="closeFavEdit()">✕</button>
+  </div>
+  <div style="padding:12px 16px;overflow-y:auto;flex:1">
+    <div class="sl">セット名</div>
+    <input type="text" id="fav-edit-name" placeholder="セット名" style="margin-bottom:12px">
+    <div class="sl">種目一覧</div>
+    <div id="fav-edit-items" style="margin-bottom:12px"></div>
+    <div class="sl">種目を追加</div>
+    <div class="ptabs" id="fav-edit-ptabs" style="padding:0;margin-bottom:8px"></div>
+    <div id="fav-edit-exlist"></div>
+    <button class="btn bp" onclick="saveFavEdit()" style="margin-top:8px">変更を保存</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var KEY='fv17_';
+var SPR=1300;
+var IV=[
+  {face:'😵',label:'ギリギリ'},
+  {face:'😤',label:'ギリ'},
+  {face:'😐',label:'普通'},
+  {face:'🙂',label:'やや余裕'},
+  {face:'😄',label:'まだいける'}
+];
+var GM=[
+  {p:'胸',e:[
+    {n:'ベンチプレス',m:6,s:4,unit:'kg'},
+    {n:'インクライン・バーベルプレス',m:5.5,s:4,unit:'kg'},
+    {n:'デクライン・バーベルプレス',m:5.5,s:4,unit:'kg'},
+    {n:'フラット・ダンベルプレス',m:5.5,s:4,unit:'kg'},
+    {n:'インクライン・ダンベルプレス',m:5.5,s:4,unit:'kg'},
+    {n:'デクライン・ダンベルプレス',m:5.5,s:4,unit:'kg'},
+    {n:'クローズグリップベンチプレス',m:5.5,s:4,unit:'kg'},
+    {n:'ペックフライ',m:4.5,s:3,unit:'kg'},
+    {n:'ケーブルクロスオーバー',m:4.5,s:3,unit:'kg'},
+    {n:'ディップス',m:6,s:3,unit:'rep'}
+  ]},
+  {p:'背中',e:[
+    {n:'デッドリフト',m:6,s:4,unit:'kg'},
+    {n:'ルーマニアンデッドリフト',m:5.5,s:4,unit:'kg'},
+    {n:'ラットプルダウン',m:5,s:4,unit:'kg'},
+    {n:'チンニング（懸垂）',m:8,s:4,unit:'rep'},
+    {n:'ワンハンドローイング',m:5,s:4,unit:'kg'},
+    {n:'シーテッドローイング',m:5,s:4,unit:'kg'},
+    {n:'シュラッグ',m:4,s:2,unit:'kg'},
+    {n:'フェイスプル',m:4,s:3,unit:'kg'}
+  ]},
+  {p:'肩',e:[
+    {n:'ショルダープレス',m:5,s:4,unit:'kg'},
+    {n:'サイドレイズ',m:3.5,s:3,unit:'kg'},
+    {n:'インクライン・サイドレイズ',m:3.5,s:3,unit:'kg'},
+    {n:'フロントレイズ',m:3.5,s:3,unit:'kg'}
+  ]},
+  {p:'腕',e:[
+    {n:'ダンベルカール（アームカール）',m:4,s:3,unit:'kg'},
+    {n:'インクライン・アームカール',m:4,s:3,unit:'kg'},
+    {n:'ハンマーカール',m:4,s:3,unit:'kg'},
+    {n:'インクライン・ハンマーカール',m:4,s:3,unit:'kg'},
+    {n:'ケーブル・プッシュダウン',m:4,s:3,unit:'kg'},
+    {n:'トライセプスロープ',m:4,s:3,unit:'kg'}
+  ]},
+  {p:'脚',e:[
+    {n:'スミススクワット',m:5,s:4,unit:'kg'},
+    {n:'ベンチスクワット',m:5,s:4,unit:'kg'},
+    {n:'レッグプレス',m:4.5,s:4,unit:'kg'},
+    {n:'レッグエクステンション',m:4,s:3,unit:'kg'},
+    {n:'レッグカール',m:4,s:3,unit:'kg'},
+    {n:'インナーサイ',m:3.5,s:3,unit:'kg'},
+    {n:'アウトサイ',m:3.5,s:3,unit:'kg'},
+    {n:'カーフレイズ',m:3,s:2,unit:'kg'},
+    {n:'ヒップスラスト',m:4.5,s:3,unit:'kg'}
+  ]},
+  {p:'体幹',e:[
+    {n:'プランク',m:4,s:1,unit:'sec'},
+    {n:'クランチ（アブドミナルクランチ）',m:3.5,s:2,unit:'kg'},
+    {n:'デクライン・クランチ',m:3.5,s:2,unit:'kg'},
+    {n:'レッグレイズ',m:4,s:3,unit:'rep'},
+    {n:'キャプテンズチェア',m:4,s:3,unit:'rep'},
+    {n:'ロシアンツイスト',m:3.5,s:2,unit:'rep'},
+    {n:'腹筋ローラー（膝コロ）',m:5,s:3,unit:'rep'},
+    {n:'腹筋ローラー（立ちコロ）',m:7,s:3,unit:'rep'}
+  ]},
+  {p:'首',e:[{n:'首（前後左右）',m:3,s:2,unit:'rep'}]}
+];
+var GM_MAP={};
+GM.forEach(function(pt){pt.e.forEach(function(ex){GM_MAP[ex.n]={m:ex.m,s:ex.s,unit:ex.unit};});});
+
+var DAY=['日','月','火','水','木','金','土'];
+var td=new Date(),TS=fd(td);
+var cY=td.getFullYear(),cM=td.getMonth(),selD=TS,rptD=TS;
+var bC=null,wC=null;
+var selI={},GS={},popPart=0;
+
+function fd(d){return d.getFullYear()+'-'+zp(d.getMonth()+1)+'-'+zp(d.getDate());}
+function zp(n){return String(n).padStart(2,'0');}
+function sg(k,def){try{var v=localStorage.getItem(KEY+k);return v!==null?JSON.parse(v):def;}catch(e){return def;}}
+function ss(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+
+var P=sg('p',{gender:'',height:0,age:0,goalWeight:0,goalKcal:2000});
+var WS=sg('w',[]);
+var DS=sg('d',{});
+var TODAY_MENU=sg('tm',[]);
+var FAVS=sg('favs',[]);
+
+function getBW(){return WS.length?WS[0].w:0;}
+function gday(s){if(!DS[s])DS[s]={steps:0,exercises:[],runs:[],memo:''};return DS[s];}
+function saveAll(){ss('d',DS);}
+
+function setTog(id,active){
+  var el=document.getElementById(id);if(!el)return;
+  el.style.background=active?'#39FF14':'#162040';
+  el.style.borderColor=active?'#39FF14':'rgba(255,255,255,0.12)';
+  el.style.color=active?'#080C18':'#445580';
+  el.style.fontWeight=active?'700':'400';
+}
+function pickG(g){P.gender=g;setTog('g-male',g==='male');setTog('g-female',g==='female');}
+
+function calcBMR(){
+  var bw=getBW(),h=P.height||0,age=P.age||0,g=P.gender||'';
+  if(bw&&h&&age&&(g==='male'||g==='female')){
+    return g==='male'?Math.round(88.362+13.397*bw+4.799*h-5.677*age):Math.round(447.593+9.247*bw+3.098*h-4.330*age);
+  }
+  if(bw&&h)return Math.round(500+10*bw+6.25*h);
+  if(bw)return Math.round(bw*24);
+  return 0;
+}
+function bmrNote(){
+  var bw=getBW(),h=P.height||0,age=P.age||0,g=P.gender||'';
+  if(bw&&h&&age&&(g==='male'||g==='female'))return 'ハリス・ベネディクト式（'+(g==='male'?'男性':'女性')+'）';
+  if(bw&&h)return '簡易計算';
+  if(bw)return '体重のみで推定';
+  return '体重を入力してください';
+}
+function showBmr(){
+  var bmr=calcBMR(),box=document.getElementById('bmrbox');
+  if(bmr){box.style.display='block';document.getElementById('bmr-note').textContent=bmrNote();document.getElementById('bmr-val').textContent=bmr;}
+  else box.style.display='none';
+}
+function cEx(ex,sets,reps,bw){
+  var m=ex.m,s=ex.s,w=bw||65;
+  if(ex.unit==='sec') return Math.round(m*w*(sets*reps+sets*30)/3600*1.05);
+  return Math.round(m*w*(sets*reps*s+sets*60)/3600*1.05);
+}
+function cRun(km,min,bw){var w=bw||65;if(!km||!min)return 0;var p=min/km,mt=p<=4?14:p<=5?12:p<=6?10:p<=7?8.5:7;return Math.round(mt*w*min/60*1.05);}
+function cStep(ts,runs,bw){var rs=0;(runs||[]).forEach(function(r){rs+=Math.round((r.km||0)*SPR);});return Math.round(Math.max(0,(ts||0)-rs)*(bw||65)*0.0005);}
+function burnD(d){
+  var bw=getBW()||65,basal=calcBMR()||Math.round(bw*22),sc=cStep(d.steps||0,d.runs||[],bw),rc=0,ec=0;
+  (d.runs||[]).forEach(function(r){rc+=cRun(r.km,r.min,bw);});
+  (d.exercises||[]).forEach(function(e){ec+=e.kcal||0;});
+  return{basal:basal,sc:sc,rc:rc,ec:ec,total:basal+sc+rc+ec};
+}
+function avgR(sets){var s=0;sets.forEach(function(x){s+=x.reps;});return sets.length?Math.round(s/sets.length):0;}
+function encB64(name){var r='';for(var i=0;i<name.length;i++){r+=name.charCodeAt(i).toString(36);}return 'e'+r;}
+
+function sw(pg,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.style.display='none';});
+  document.querySelectorAll('.tab').forEach(function(t){t.className='tab';});
+  document.getElementById('pg-'+pg).style.display='block';
+  btn.className='tab on';
+  if(pg==='home')refreshHome();
+  else if(pg==='cal')renderCal();
+  else if(pg==='body')loadProf();
+  else if(pg==='workout'){checkWarn();renderFavList();renderTodayMenu();renderExList();loadMemo();}
+  else if(pg==='cardio')renderRunList();
+  else if(pg==='report'){var di=document.getElementById('rd');if(di)di.value=rptD;buildChkList();updateRpt();}
+}
+
+/* ホーム */
+function saveWtQ(){
+  var v=parseFloat(document.getElementById('wt-quick').value);if(!v)return;
+  WS.unshift({date:TS,w:v});if(WS.length>90)WS=WS.slice(0,90);
+  ss('w',WS);document.getElementById('wt-quick').value='';
+  refreshHome();
+  if(document.getElementById('pg-workout').style.display==='block')checkWarn();
+  if(document.getElementById('pg-body').style.display==='block'){showBmr();renderWtChart();renderWtList();}
+}
+function refreshHome(){
+  var d=gday(TS),b=burnD(d);
+  document.getElementById('h-steps').textContent=(d.steps||0).toLocaleString();
+  document.getElementById('h-burn').textContent=Math.round(b.total);
+  var gk=P.goalKcal||2000;
+  document.getElementById('h-gk').textContent=gk;
+  var bp=Math.min(100,Math.round(b.total/gk*100));
+  document.getElementById('h-bb').style.width=bp+'%';document.getElementById('h-bp').textContent=bp+'%';
+  var bw=getBW();if(bw)document.getElementById('wt-quick').placeholder=bw+' kg（最新）';
+  drawBC(b);
+}
+function drawBC(b){
+  if(bC){bC.destroy();bC=null;}
+  bC=new Chart(document.getElementById('bc').getContext('2d'),{type:'doughnut',data:{
+    labels:['基礎代謝 '+Math.round(b.basal)+'kcal','歩行 '+Math.round(b.sc)+'kcal','ランニング '+Math.round(b.rc)+'kcal','筋トレ '+Math.round(b.ec)+'kcal'],
+    datasets:[{data:[Math.round(b.basal),Math.round(b.sc),Math.round(b.rc),Math.round(b.ec)],backgroundColor:['#4F8EF7','#39FF14','#00EEFF','#FFE600'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#8A9CC4',font:{size:10},boxWidth:10,padding:5}}}}});
+}
+function saveSteps(){var v=parseInt(document.getElementById('si').value)||0;gday(TS).steps=v;saveAll();refreshHome();document.getElementById('si').value='';}
+
+/* カレンダー */
+function renderCal(){
+  document.getElementById('cl').textContent=cY+'年'+(cM+1)+'月';
+  var h='';DAY.forEach(function(d){h+='<div style="text-align:center;font-size:11px;color:#445580;padding:3px 0">'+d+'</div>';});
+  document.getElementById('chd').innerHTML=h;
+  var first=new Date(cY,cM,1).getDay(),last=new Date(cY,cM+1,0).getDate(),html='';
+  for(var i=0;i<first;i++)html+='<div class="cc empty-cell"></div>';
+  for(var d=1;d<=last;d++){
+    var ds=cY+'-'+zp(cM+1)+'-'+zp(d);
+    var dd=DS[ds],has=dd&&((dd.steps||0)||(dd.exercises||[]).length||(dd.runs||[]).length);
+    var isT=ds===TS,isSel=ds===selD;
+    var cls='cc';
+    if(isSel) cls+=' sel';
+    else if(isT) cls+=' today';
+    if(has) cls+=' has';
+    html+='<div class="'+cls+'" onclick="selD2(\''+ds+'\')">'+d+'</div>';
+  }
+  document.getElementById('cbd').innerHTML=html;showCalDet(selD);
+}
+function calMv(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
+function selD2(ds){selD=ds;renderCal();}
+function showCalDet(ds){
+  var det=document.getElementById('cdet'),d=DS[ds];
+  if(!d||(!(d.steps||0)&&!(d.exercises||[]).length&&!(d.runs||[]).length&&!d.memo)){det.style.display='none';return;}
+  det.style.display='block';
+  var bw=getBW()||65,rs=(d.runs||[]).reduce(function(s,r){return s+Math.round((r.km||0)*SPR);},0),ws=Math.max(0,(d.steps||0)-rs);
+  var h='<div style="font-size:11px;color:#39FF14;font-weight:700;margin-bottom:8px">'+ds+'</div>';
+  if(d.steps)h+='<div class="li"><span style="color:#8A9CC4">歩数</span><span>'+d.steps.toLocaleString()+' 歩（歩行'+ws.toLocaleString()+'歩）</span></div>';
+  (d.exercises||[]).forEach(function(e){
+    /* 種目名 + kcal */
+    h+='<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07)">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+    h+='<span style="font-size:13px;font-weight:700;color:var(--t1)">'+e.n+'</span>';
+    h+='<span style="font-size:11px;color:#39FF14;font-weight:700">'+e.kcal+' kcal</span>';
+    h+='</div>';
+    /* セットごとの重量×回数 */
+    if(e.sd&&e.sd.length){
+      e.sd.forEach(function(s){
+        var valStr;
+        if(e.unit==='sec') valStr=s.reps+'秒';
+        else if(e.unit==='kg') valStr=s.weight+'kg × '+s.reps+'回';
+        else valStr=s.reps+'回';
+        var faceStr=s.face?' <span style="font-size:13px">'+s.face+'</span>':'';
+        h+='<div style="font-size:12px;color:#8A9CC4;padding:1px 0">'+s.set+'セット目: '+valStr+faceStr+'</div>';
+      });
+    }
+    h+='</div>';
+  });
+  (d.runs||[]).forEach(function(r){h+='<div class="li"><span>'+r.km+'km RUN</span><div style="text-align:right"><div style="color:#445580;font-size:12px">'+r.min+'分</div><div style="font-size:11px;color:#39FF14">'+r.kcal+' kcal</div></div></div>';});
+  if(d.memo)h+='<div style="margin-top:8px;padding:8px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--t2);line-height:1.6">💬 '+d.memo.replace(/\n/g,'<br>')+'</div>';
+  det.innerHTML=h;
+}
+
+/* プロフィール */
+function loadProf(){
+  setTog('g-male',P.gender==='male');setTog('g-female',P.gender==='female');
+  document.getElementById('p-age').value=P.age||'';
+  document.getElementById('p-h').value=P.height||'';
+  document.getElementById('p-gw').value=P.goalWeight||'';
+  document.getElementById('p-gk').value=P.goalKcal||2000;
+  showBmr();renderWtChart();renderWtList();
+}
+function saveProf(){
+  P.age=parseFloat(document.getElementById('p-age').value)||0;
+  P.height=parseFloat(document.getElementById('p-h').value)||0;
+  P.goalWeight=parseFloat(document.getElementById('p-gw').value)||0;
+  P.goalKcal=parseInt(document.getElementById('p-gk').value)||2000;
+  ss('p',P);showBmr();alert('保存しました');
+}
+function renderWtChart(){
+  if(wC){wC.destroy();wC=null;}
+  var s=WS.slice().reverse().slice(-20);if(!s.length)return;
+  var ds=[{data:s.map(function(w){return w.w;}),borderColor:'#39FF14',backgroundColor:'rgba(57,255,20,0.08)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#39FF14',borderWidth:2}];
+  if(P.goalWeight)ds.push({data:s.map(function(){return P.goalWeight;}),borderColor:'#FFE600',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false});
+  wC=new Chart(document.getElementById('wc').getContext('2d'),{type:'line',data:{labels:s.map(function(w){return w.date.slice(5);}),datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#445580',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#8A9CC4',font:{size:11},maxRotation:45},grid:{display:false}}}}});
+}
+function renderWtList(){
+  var el=document.getElementById('wl');
+  if(!WS.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}
+  el.innerHTML=WS.slice(0,10).map(function(w,i){return '<div class="li"><span style="color:#445580">'+w.date+'</span><div style="display:flex;align-items:center;gap:8px"><span style="color:#39FF14;font-weight:700">'+w.w+' kg</span><button class="del" onclick="delWt('+i+')">✕</button></div></div>';}).join('');
+}
+function delWt(i){WS.splice(i,1);ss('w',WS);showBmr();renderWtChart();renderWtList();}
+
+/* ===== お気に入りセット ===== */
+var editFavIdx=-1;   /* 編集中のFAVSインデックス */
+var editFavPart=0;   /* 編集ポップアップの部位タブ */
+
+function saveFav(){
+  if(!TODAY_MENU.length){alert('メニューに種目を追加してから保存してください');return;}
+  editFavIdx=-1;
+  document.getElementById('fav-popup-title').textContent='セット名を入力';
+  document.getElementById('fav-save-btn').textContent='保存する';
+  document.getElementById('fav-name-in').value='';
+  document.getElementById('fav-overlay').style.display='block';
+  document.getElementById('fav-popup').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeFavPopup(){
+  document.getElementById('fav-overlay').style.display='none';
+  document.getElementById('fav-popup').style.display='none';
+  document.body.style.overflow='';
+}
+function confirmSaveFav(){
+  var name=document.getElementById('fav-name-in').value.trim();
+  if(!name){alert('セット名を入力してください');return;}
+  FAVS.push({name:name,menu:TODAY_MENU.slice()});
+  ss('favs',FAVS);
+  closeFavPopup();
+  renderFavList();
+  alert('「'+name+'」を保存しました！');
+}
+function loadFav(i){
+  TODAY_MENU.length=0;
+  FAVS[i].menu.forEach(function(n){TODAY_MENU.push(n);});
+  ss('tm',TODAY_MENU);
+  GS={};selI={};
+  renderTodayMenu();
+}
+function delFav(i){
+  if(!confirm('「'+FAVS[i].name+'」を削除しますか？'))return;
+  FAVS.splice(i,1);ss('favs',FAVS);renderFavList();
+}
+function renderFavList(){
+  var el=document.getElementById('fav-list');
+  if(!FAVS.length){el.innerHTML='<div class="empty" style="padding:.6rem">保存したセットがありません</div>';return;}
+  var h='';
+  FAVS.forEach(function(fav,i){
+    var tags=fav.menu.slice(0,3).join('・')+(fav.menu.length>3?' 他'+(fav.menu.length-3)+'種目':'');
+    h+='<div class="fav-item"><div class="fav-info"><div class="fav-name">'+fav.name+'</div><div class="fav-tags">'+tags+'</div></div>';
+    h+='<div class="fav-btns">';
+    h+='<button class="fav-load" onclick="loadFav('+i+')">読込</button>';
+    h+='<button class="fav-load" style="background:var(--acc3);color:#080C18;" onclick="openFavEdit('+i+')">編集</button>';
+    h+='<button class="fav-del" onclick="delFav('+i+')">✕</button>';
+    h+='</div></div>';
+  });
+  el.innerHTML=h;
+}
+
+/* ===== お気に入り編集 ===== */
+function openFavEdit(i){
+  editFavIdx=i;editFavPart=0;
+  var fav=FAVS[i];
+  document.getElementById('fav-edit-name').value=fav.name;
+  document.getElementById('fav-edit-overlay').style.display='block';
+  document.getElementById('fav-edit-popup').style.display='flex';
+  document.body.style.overflow='hidden';
+  renderFavEditItems();
+  renderFavEditPtabs();
+  renderFavEditExList();
+}
+function closeFavEdit(){
+  document.getElementById('fav-edit-overlay').style.display='none';
+  document.getElementById('fav-edit-popup').style.display='none';
+  document.body.style.overflow='';
+}
+function renderFavEditItems(){
+  if(editFavIdx<0)return;
+  var menu=FAVS[editFavIdx].menu;
+  var el=document.getElementById('fav-edit-items');
+  if(!menu.length){el.innerHTML='<div class="empty" style="padding:.4rem">種目がありません</div>';return;}
+  var h='';
+  menu.forEach(function(name,i){
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;margin-bottom:6px">';
+    h+='<span style="font-size:13px;color:var(--t1)">'+name+'</span>';
+    h+='<button style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:0 4px" onclick="removeFavItem('+i+')">✕</button>';
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+function removeFavItem(i){
+  if(editFavIdx<0)return;
+  FAVS[editFavIdx].menu.splice(i,1);
+  renderFavEditItems();
+  renderFavEditExList();
+}
+function renderFavEditPtabs(){
+  var h='';
+  GM.forEach(function(pt,i){h+='<button class="ptab'+(i===editFavPart?' on':'')+'" onclick="switchFavEditPart('+i+')">'+pt.p+'</button>';});
+  document.getElementById('fav-edit-ptabs').innerHTML=h;
+}
+function switchFavEditPart(i){editFavPart=i;renderFavEditPtabs();renderFavEditExList();}
+function renderFavEditExList(){
+  if(editFavIdx<0)return;
+  var menu=FAVS[editFavIdx].menu;
+  var h='';
+  GM[editFavPart].e.forEach(function(ex){
+    var sel=menu.indexOf(ex.n)>=0;
+    h+='<div class="pitem'+(sel?' selected':'')+'" onclick="toggleFavItem(\''+ex.n.replace(/'/g,"\\'")+'\')"><span class="pitem-name">'+ex.n+'</span><span class="pitem-check">'+(sel?'✓':'')+'</span></div>';
+  });
+  document.getElementById('fav-edit-exlist').innerHTML=h;
+}
+function toggleFavItem(name){
+  if(editFavIdx<0)return;
+  var menu=FAVS[editFavIdx].menu;
+  var idx=menu.indexOf(name);
+  if(idx>=0)menu.splice(idx,1);else menu.push(name);
+  renderFavEditItems();
+  renderFavEditExList();
+}
+function saveFavEdit(){
+  if(editFavIdx<0)return;
+  var name=document.getElementById('fav-edit-name').value.trim();
+  if(!name){alert('セット名を入力してください');return;}
+  FAVS[editFavIdx].name=name;
+  ss('favs',FAVS);
+  closeFavEdit();
+  renderFavList();
+}
+
+/* ===== 種目ポップアップ ===== */
+function openPopup(){
+  document.getElementById('overlay').style.display='block';
+  var pop=document.getElementById('popup');pop.style.display='flex';
+  renderPopupTabs();renderPopupList(popPart);
+  document.body.style.overflow='hidden';
+}
+function closePopup(){
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('popup').style.display='none';
+  document.body.style.overflow='';
+  renderTodayMenu();
+}
+function renderPopupTabs(){
+  var h='';
+  GM.forEach(function(pt,i){h+='<button class="ptab'+(i===popPart?' on':'')+'" onclick="switchPart('+i+')">'+pt.p+'</button>';});
+  document.getElementById('ptabs').innerHTML=h;
+}
+function switchPart(i){popPart=i;renderPopupTabs();renderPopupList(i);}
+function renderPopupList(pi){
+  var h='';
+  GM[pi].e.forEach(function(ex){
+    var sel=TODAY_MENU.indexOf(ex.n)>=0;
+    h+='<div class="pitem'+(sel?' selected':'')+'" onclick="toggleMenuItem(\''+ex.n.replace(/'/g,"\\'")+'\')"><span class="pitem-name">'+ex.n+'</span><span class="pitem-check">'+(sel?'✓':'')+'</span></div>';
+  });
+  document.getElementById('popup-list').innerHTML=h;
+}
+function toggleMenuItem(name){
+  var idx=TODAY_MENU.indexOf(name);
+  if(idx>=0)TODAY_MENU.splice(idx,1);else TODAY_MENU.push(name);
+  ss('tm',TODAY_MENU);renderPopupList(popPart);
+}
+
+/* ===== 今日のメニュー ===== */
+function getLastRecord(name){
+  var dates=Object.keys(DS).filter(function(d){return d<TS;}).sort().reverse();
+  for(var i=0;i<dates.length;i++){
+    var d=DS[dates[i]];if(!d||!d.exercises)continue;
+    var found=d.exercises.filter(function(e){return e.n===name;});
+    if(found.length)return found[found.length-1];
+  }
+  return null;
+}
+function repeatSets(name){
+  var last=getLastRecord(name);
+  if(!last||!last.sd||!last.sd.length){alert('前回の記録が見つかりません');return;}
+  GS[name]=last.sd.map(function(s){return{reps:s.reps,weight:s.weight||0,face:'',iLabel:''};});
+  renderTodayMenu();
+}
+function copyLastSet(name){
+  if(!GS[name]||!GS[name].length)return;
+  var last=GS[name][GS[name].length-1];
+  var idx=selI[name],face='',iLabel='';
+  if(idx!==undefined&&idx>=0){face=IV[idx].face;iLabel=IV[idx].label;}
+  GS[name].push({reps:last.reps,weight:last.weight,face:face,iLabel:iLabel});
+  renderTodayMenu();
+}
+function removeFromMenu(name){
+  var idx=TODAY_MENU.indexOf(name);if(idx>=0)TODAY_MENU.splice(idx,1);
+  ss('tm',TODAY_MENU);delete GS[name];renderTodayMenu();
+}
+function pickI(name,idx){
+  selI[name]=idx;
+  var eid=encB64(name);
+  for(var i=0;i<IV.length;i++){
+    var el=document.getElementById('ib-'+eid+'-'+i);if(!el)continue;
+    var a=i===idx;
+    el.style.background=a?'#39FF14':'#1C2850';
+    el.style.borderColor=a?'#39FF14':'rgba(255,255,255,0.12)';
+    var lbl=el.querySelector('.ilab');if(lbl)lbl.style.color=a?'#080C18':'#445580';
+  }
+}
+function renderTodayMenu(){
+  var wrap=document.getElementById('today-menu');
+  var saveWrap=document.getElementById('wk-save-wrap');
+  if(!TODAY_MENU.length){wrap.innerHTML='<div class="empty">「＋ 種目を追加」で種目を選んでください</div>';saveWrap.style.display='none';return;}
+  saveWrap.style.display='block';
+  var bw=getBW()||65,h='';
+  TODAY_MENU.forEach(function(name){
+    if(!GS[name])GS[name]=[];
+    var sets=GS[name];
+    var ex=GM_MAP[name]||{m:5,s:3,unit:'kg'};
+    var tk=sets.length?cEx(ex,sets.length,avgR(sets),bw):0;
+    var eid=encB64(name);
+    var unit=ex.unit||'kg';
+    var lbl1=unit==='sec'?'秒':'回数';
+    var ph1=unit==='sec'?'30':'10';
+    var last=getLastRecord(name);
+    var rpBtn=last?('<button class="rpbtn" onclick="repeatSets(\''+name.replace(/'/g,"\\'")+'\')">↺ 前回</button>'):'';
+    h+='<div class="menu-card">';
+    h+='<div class="menu-card-hd"><span class="menu-card-name">'+name+'</span>';
+    h+='<div style="display:flex;align-items:center;gap:6px">';
+    if(sets.length)h+='<span class="kt">'+sets.length+'セット / '+tk+'kcal</span>';
+    h+=rpBtn;
+    h+='<button class="menu-del" onclick="removeFromMenu(\''+name.replace(/'/g,"\\'")+'\')">✕</button></div></div>';
+    if(!sets.length&&last&&last.sd&&last.sd.length){
+      h+='<div style="font-size:11px;color:#445580;background:var(--bg3);border-radius:8px;padding:6px 10px;margin-bottom:8px">前回: ';
+      h+=last.sd.map(function(s){return last.unit==='sec'?s.reps+'秒':(last.unit==='kg'&&s.weight?s.weight+'kg × '+s.reps+'回':s.reps+'回');}).join(' / ');
+      h+='</div>';
+    }
+    if(sets.length){
+      h+='<div class="chips">';
+      sets.forEach(function(s,si){
+        var valStr=unit==='sec'?s.reps+'秒':(unit==='kg'?s.weight+'kg × '+s.reps+'回':s.reps+'回');
+        var fh=s.face?(' <span style="font-size:15px">'+s.face+'</span><span style="font-size:10px;color:#8A9CC4">'+s.iLabel+'</span>'):'';
+        h+='<div class="chip"><div class="chip-l"><span>'+(si+1)+'セット: '+valStr+'</span>'+fh+'</div><button class="xbtn" onclick="rmSet(\''+name.replace(/'/g,"\\'")+'\','+si+')">✕</button></div>';
+      });
+      h+='</div>';
+    }
+    h+='<div class="exrow"><span class="ul">'+lbl1+'</span><input type="number" class="nin" id="r-'+eid+'" placeholder="'+ph1+'" min="1">';
+    if(unit==='kg')h+='<span class="ul">kg</span><input type="number" class="nin" id="w-'+eid+'" placeholder="0" step="0.5">';
+    h+='<button class="addb" onclick="addSet(\''+name.replace(/'/g,"\\'")+'\')">＋追加</button>';
+    if(sets.length)h+='<button class="addb" style="border-color:#00EEFF;color:#00EEFF;" onclick="copyLastSet(\''+name.replace(/'/g,"\\'")+'\')">コピー</button>';
+    h+='</div>';
+    h+='<div style="font-size:10px;color:#445580;margin-top:6px;margin-bottom:4px">強度（このセット）</div><div class="irow">';
+    IV.forEach(function(iv,idx){
+      var a=selI[name]===idx;
+      h+='<button class="ibtn" id="ib-'+eid+'-'+idx+'" onclick="pickI(\''+name.replace(/'/g,"\\'")+'\','+idx+')" style="background:'+(a?'#39FF14':'#1C2850')+';border-color:'+(a?'#39FF14':'rgba(255,255,255,0.12)')+'"><span class="iface">'+iv.face+'</span><span class="ilab" style="color:'+(a?'#080C18':'#445580')+'">'+iv.label+'</span></button>';
+    });
+    h+='</div></div>';
+  });
+  wrap.innerHTML=h;
+}
+function addSet(name){
+  var eid=encB64(name);
+  var reps=parseInt(document.getElementById('r-'+eid).value)||0;
+  if(!reps){document.getElementById('r-'+eid).focus();return;}
+  var ex=GM_MAP[name]||{unit:'kg'};
+  var wt=ex.unit==='kg'?(parseFloat(document.getElementById('w-'+eid).value)||0):0;
+  if(!GS[name])GS[name]=[];
+  var idx=selI[name],face='',iLabel='';
+  if(idx!==undefined&&idx>=0){face=IV[idx].face;iLabel=IV[idx].label;}
+  GS[name].push({reps:reps,weight:wt,face:face,iLabel:iLabel});
+  renderTodayMenu();
+}
+function rmSet(name,si){if(GS[name])GS[name].splice(si,1);renderTodayMenu();}
+function saveWk(){
+  var bw=getBW()||65,d=gday(TS),added=0;
+  TODAY_MENU.forEach(function(name){
+    var sets=GS[name];if(!sets||!sets.length)return;
+    var ex=GM_MAP[name]||{m:5,s:3,unit:'kg'};
+    d.exercises.push({n:name,sets:sets.length,reps:avgR(sets),weight:sets[sets.length-1].weight,unit:ex.unit,
+      sd:sets.map(function(s,i){return{set:i+1,reps:s.reps,weight:s.weight,face:s.face,iLabel:s.iLabel};}),
+      kcal:cEx(ex,sets.length,avgR(sets),bw)});added++;
+  });
+  if(!added){alert('セットが入力されていません');return;}
+  saveAll();GS={};selI={};renderTodayMenu();renderExList();
+  var ok=document.getElementById('wk-ok');ok.style.display='block';setTimeout(function(){ok.style.display='none';},2000);
+}
+function saveMemo(){
+  var v=document.getElementById('wk-memo').value;
+  gday(TS).memo=v;saveAll();
+  var ok=document.getElementById('memo-ok');ok.style.display='block';setTimeout(function(){ok.style.display='none';},2000);
+}
+function loadMemo(){document.getElementById('wk-memo').value=gday(TS).memo||'';}
+function renderExList(){
+  var d=gday(TS),el=document.getElementById('exl'),tot=document.getElementById('ext'),h='',tk=0;
+  (d.exercises||[]).forEach(function(e,i){
+    tk+=e.kcal||0;
+    var det='';
+    if(e.sd&&e.sd.length){
+      det='<div style="font-size:11px;color:#445580;margin-top:4px;line-height:1.8">';
+      e.sd.forEach(function(s){
+        var valStr=e.unit==='sec'?s.reps+'秒':(e.unit==='kg'?s.weight+'kg × '+s.reps+'回':s.reps+'回');
+        det+=s.set+'セット: '+valStr+(s.face?' '+s.face:'')+'　';
+      });
+      det+='</div>';
+    }
+    h+='<div class="li"><div style="flex:1;min-width:0"><div>'+e.n+'</div>'+det+'</div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px"><span class="kt">'+e.kcal+'kcal</span><button class="del" onclick="delEx('+i+')">✕</button></div></div>';
+  });
+  el.innerHTML=h||'<div class="empty">まだ記録がありません</div>';
+  if(tk){tot.style.display='block';tot.textContent='筋トレ合計 '+tk+' kcal';}else tot.style.display='none';
+}
+function delEx(i){gday(TS).exercises.splice(i,1);saveAll();renderExList();}
+function checkWarn(){document.getElementById('wkw').style.display=getBW()?'none':'block';}
+
+/* ランニング */
+function updateRP(){
+  var km=parseFloat(document.getElementById('rk').value)||0,min=parseInt(document.getElementById('rm').value)||0,p=document.getElementById('rpv');
+  if(!km&&!min){p.style.display='none';return;}
+  p.style.display='block';p.textContent='推定消費: '+cRun(km,min,getBW()||65)+' kcal（約'+Math.round(km*SPR).toLocaleString()+'歩を差引）';
+}
+document.getElementById('rk').addEventListener('input',updateRP);
+document.getElementById('rm').addEventListener('input',updateRP);
+function saveRun(){
+  var km=parseFloat(document.getElementById('rk').value)||0,min=parseInt(document.getElementById('rm').value)||0;
+  if(!km&&!min)return;
+  gday(TS).runs.push({km:km,min:min,kcal:cRun(km,min,getBW()||65)});
+  saveAll();document.getElementById('rk').value='';document.getElementById('rm').value='';document.getElementById('rpv').style.display='none';
+  renderRunList();refreshHome();
+}
+function renderRunList(){
+  var d=gday(TS),el=document.getElementById('runl'),h='',tot=0;
+  var rs=(d.runs||[]).reduce(function(s,r){return s+Math.round((r.km||0)*SPR);},0);
+  (d.runs||[]).forEach(function(r,i){tot+=r.kcal||0;h+='<div class="li"><div><div>'+r.km+'km ランニング</div><div style="font-size:11px;color:#445580">'+r.min+'分 / 約'+Math.round(r.km*SPR).toLocaleString()+'歩を差引</div></div><div style="display:flex;align-items:center;gap:6px"><span class="kt">'+r.kcal+'kcal</span><button class="del" onclick="delRun('+i+')">✕</button></div></div>';});
+  if(rs>0)h+='<div style="font-size:11px;color:#445580;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07)">歩数から差引合計: '+rs.toLocaleString()+' 歩</div>';
+  if(tot)h+='<div style="text-align:right;font-size:13px;font-weight:700;color:#39FF14;margin-top:4px">合計 '+tot+' kcal</div>';
+  el.innerHTML=h||'<div class="empty">まだ記録がありません</div>';
+}
+function delRun(i){gday(TS).runs.splice(i,1);saveAll();renderRunList();refreshHome();}
+
+/* 報告 */
+var RC_ITEMS=[
+  {id:'rc-profile',label:'👤 プロフィール・基礎代謝'},
+  {id:'rc-weight', label:'⚖️ 体重'},
+  {id:'rc-steps',  label:'🚶 歩数・消費カロリー'},
+  {id:'rc-workout',label:'💪 筋トレ'},
+  {id:'rc-cardio', label:'🏃 ランニング'},
+  {id:'rc-balance',label:'📊 カロリー収支'},
+  {id:'rc-memo',   label:'💬 感想'}
+];
+var RC_STATE={};
+function buildChkList(){
+  var el=document.getElementById('chk-list');if(!el)return;
+  var allOn=RC_ITEMS.every(function(item){return RC_STATE[item.id];});
+  var h='';
+  h+='<div onclick="toggleAll()" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;border-radius:10px;border:2px solid #39FF14;background:'+(allOn?'rgba(57,255,20,0.1)':'#162040')+';-webkit-tap-highlight-color:transparent">';
+  h+='<span style="width:22px;height:22px;border-radius:6px;border:2px solid #39FF14;background:'+(allOn?'#39FF14':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;color:#080C18">'+(allOn?'✓':'')+'</span>';
+  h+='<span style="font-size:14px;font-weight:700;color:#39FF14">すべて</span></div>';
+  h+='<div style="height:1px;background:rgba(255,255,255,0.07);margin:2px 0"></div>';
+  RC_ITEMS.forEach(function(item){
+    var on=RC_STATE[item.id];
+    h+='<div onclick="toggleChk(\''+item.id+'\')" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;border-radius:10px;border:2px solid '+(on?'#39FF14':'rgba(255,255,255,0.1)')+';background:'+(on?'rgba(57,255,20,0.08)':'#162040')+';-webkit-tap-highlight-color:transparent">';
+    h+='<span style="width:20px;height:20px;border-radius:5px;border:2px solid '+(on?'#39FF14':'#445580')+';background:'+(on?'#39FF14':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:#080C18">'+(on?'✓':'')+'</span>';
+    h+='<span style="font-size:13px;font-weight:'+(on?'600':'400')+';color:'+(on?'#F0F4FF':'#445580')+'">'+item.label+'</span></div>';
+  });
+  el.innerHTML=h;
+}
+function chk(id){return !!RC_STATE[id];}
+function toggleChk(id){RC_STATE[id]=!RC_STATE[id];buildChkList();updateRpt();}
+function toggleAll(){var allOn=RC_ITEMS.every(function(item){return RC_STATE[item.id];});RC_ITEMS.forEach(function(item){RC_STATE[item.id]=!allOn;});buildChkList();updateRpt();}
+function updateRpt(){document.getElementById('rpt').textContent=buildRpt(rptD);}
+function buildRpt(ds){
+  var d=DS[ds],bw=getBW(),bmr=calcBMR();
+  var lines=['===== トレーニングレポート =====','日付: '+ds,''];
+  if(chk('rc-profile')){var gl=P.gender==='male'?'男性':P.gender==='female'?'女性':'未設定';lines.push('【プロフィール】');lines.push('  性別: '+gl+' 年齢: '+(P.age||'未設定')+' 身長: '+(P.height?P.height+'cm':'未設定'));lines.push('  基礎代謝: '+(bmr||'未設定')+' kcal（'+bmrNote()+'）');lines.push('');}
+  if(chk('rc-weight')){lines.push('【体重】 '+(bw?bw+' kg':'未記録'));lines.push('');}
+  if(!d||(!(d.steps||0)&&!(d.exercises||[]).length&&!(d.runs||[]).length&&!d.memo)){lines.push('この日のトレーニング記録はありません');return lines.join('\n');}
+  var b=burnD(d),rs=(d.runs||[]).reduce(function(s,r){return s+Math.round((r.km||0)*SPR);},0),ws=Math.max(0,(d.steps||0)-rs);
+  if(chk('rc-steps')){lines.push('【消費カロリー】 '+Math.round(b.total)+' kcal');lines.push('  基礎代謝: '+Math.round(b.basal)+' kcal');if(d.steps)lines.push('  歩行: '+ws.toLocaleString()+'歩 → '+Math.round(b.sc)+' kcal');lines.push('');}
+  if(chk('rc-workout')&&(d.exercises||[]).length){lines.push('【筋トレ】');d.exercises.forEach(function(e){lines.push('  '+e.n+' '+e.sets+'セット → '+e.kcal+' kcal');if(e.sd)e.sd.forEach(function(s){var v=e.unit==='sec'?s.reps+'秒':(e.unit==='kg'?s.weight+'kg × '+s.reps+'回':s.reps+'回');lines.push('    '+s.set+'セット: '+v+(s.face?' 強度:'+s.face+s.iLabel:''));});});lines.push('  筋トレ小計: '+Math.round(b.ec)+' kcal');lines.push('');}
+  if(chk('rc-cardio')&&(d.runs||[]).length){lines.push('【ランニング】');d.runs.forEach(function(r){lines.push('  '+r.km+'km / '+r.min+'分 → '+r.kcal+' kcal');});lines.push('');}
+  if(chk('rc-balance')){var eat=0;var net=Math.round(eat)-Math.round(b.total);lines.push('【カロリー収支】');lines.push('  消費: '+Math.round(b.total)+' kcal');lines.push('  収支: '+(net>=0?'+':'')+net+' kcal');lines.push('');}
+  if(chk('rc-memo')&&d.memo){lines.push('【感想】');lines.push('  '+d.memo.replace(/\n/g,'\n  '));lines.push('');}
+  lines.push('↑ このレポートをClaudeに貼り付けてフィードバックをもらえます');
+  return lines.join('\n');
+}
+function loadRd(){var v=document.getElementById('rd').value;if(v){rptD=v;updateRpt();}}
+function copyRpt(){
+  var txt=document.getElementById('rpt').textContent,ok=document.getElementById('cok');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){ok.style.display='block';setTimeout(function(){ok.style.display='none';},2000);});}
+  else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);ok.style.display='block';setTimeout(function(){ok.style.display='none';},2000);}
+}
+
+refreshHome();
+</script>
+</body>
+</html>
